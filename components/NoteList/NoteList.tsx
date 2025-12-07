@@ -12,15 +12,19 @@ import css from "./NoteList.module.css";
 
 export interface NoteListProps {
   notes: Note[];
+  detailsBasePath?: string; //
 }
 
-export default function NoteList({ notes }: NoteListProps) {
+export default function NoteList({
+  notes,
+  detailsBasePath = "/notes",
+}: NoteListProps) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteNote(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       toast.success("Note deleted");
     },
     onError: () => {
@@ -39,7 +43,7 @@ export default function NoteList({ notes }: NoteListProps) {
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
             <div className={css.actions}>
-              <Link href={`/notes/${note.id}`} className={css.link}>
+              <Link href={`${detailsBasePath}/${note.id}`} className={css.link}>
                 View details
               </Link>
               <button
