@@ -27,12 +27,12 @@ export interface FetchNotesParams {
   tag?: string;
 }
 
+/**
+ * Відповідь API згідно з умовою: тільки notes і totalPages.
+ */
 export interface FetchNotesResponse {
   notes: Note[];
-  page: number;
-  perPage: number;
   totalPages: number;
-  totalItems: number;
 }
 
 // ---- HTTP-функції ----
@@ -47,7 +47,6 @@ export async function fetchNotes(
       page,
       perPage,
       search,
-      // Не відправляємо тег, якщо його немає (режим "All notes")
       ...(tag ? { tag } : {}),
     },
   });
