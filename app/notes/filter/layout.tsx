@@ -4,8 +4,11 @@ import LayoutNotes from "@/components/LayoutNotes/LayoutNotes";
 
 interface FilterLayoutProps {
   children: ReactNode;
-  modal: ReactNode;
-  sidebar: ReactNode;
+  // робимо додаткові слоти НЕобов’язковими,
+  // щоб LayoutProps<"/notes/filter"> (тільки children)
+  // підходив під цей інтерфейс
+  modal?: ReactNode;
+  sidebar?: ReactNode;
 }
 
 export default function FilterLayout({
@@ -14,8 +17,9 @@ export default function FilterLayout({
   sidebar,
 }: FilterLayoutProps) {
   return (
-    <LayoutNotes sidebar={sidebar} modal={modal}>
+    <LayoutNotes sidebar={sidebar}>
       {children}
+      {modal}
     </LayoutNotes>
   );
 }

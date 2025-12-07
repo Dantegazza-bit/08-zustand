@@ -1,26 +1,18 @@
 // components/LayoutNotes/LayoutNotes.tsx
-"use client";
-
 import type { ReactNode } from "react";
 import css from "./LayoutNotes.module.css";
 
 interface LayoutNotesProps {
   children: ReactNode;
-  sidebar: ReactNode;
-  modal: ReactNode;
+  sidebar?: ReactNode; // сайдбар може бути або ні
+  // ⚠️ НІЯКОГО modal тут не потрібно
 }
 
-// ⚠️ ВАЖЛИВО: саме default export
-export default function LayoutNotes({
-  children,
-  sidebar,
-  modal,
-}: LayoutNotesProps) {
+export default function LayoutNotes({ children, sidebar }: LayoutNotesProps) {
   return (
-    <div className={css.layout}>
+    <div className={css.container}>
       <aside className={css.sidebar}>{sidebar}</aside>
       <main className={css.main}>{children}</main>
-      {modal}
     </div>
   );
 }
