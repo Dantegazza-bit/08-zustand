@@ -8,20 +8,30 @@ import { fetchNoteById } from "@/lib/api";
 import type { Note } from "@/types/note";
 import css from "../../NoteDetails.module.css";
 
-export default function NoteDetailsClient() {
+// ✅ ДОДАЛИ інтерфейс пропів
+interface NoteDetailsProps {
+  id?: string; // може бути, а може й ні
+}
+
+// Назва функції не критична, головне — default export з пропами
+export default function NoteDetailsClient({ id }: NoteDetailsProps) {
+  // Якщо id прийшов пропом — беремо його,
+  // якщо ні — беремо з URL через useParams()
   const params = useParams();
-  const rawId = params?.id;
-  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const routeRawId = params?.id;
+
+  const rawId = id ?? routeRawId;
+  const finalId = Array.isArray(rawId) ? rawId[0] : rawId;
 
   const {
     data: note,
     isLoading,
     isError,
   } = useQuery<Note, Error>({
-    queryKey: ["note", id],
-    queryFn: () => fetchNoteById(id as string),
-    enabled: typeof id === "string",
-    refetchOnMount: false, // ← додали
+    queryKey: ["note", finalId],
+    queryFn: () => fetchNoteById(finalId as string),
+    enabled: typeof finalId === "string",
+    refetchOnMount: false,
   });
 
   if (isLoading) {

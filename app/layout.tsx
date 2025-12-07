@@ -1,5 +1,7 @@
 // app/layout.tsx
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
+
 import "./globals.css";
 import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
 import Header from "@/components/Header/Header";
@@ -12,8 +14,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal, // ✅ додаємо слот для модалки
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
+  modal: ReactNode; // ✅ і тут теж
 }) {
   return (
     <html lang="en">
@@ -21,6 +25,8 @@ export default function RootLayout({
         <TanStackProvider>
           <Header />
           {children}
+          {/* ✅ модалка РЕАЛЬНО рендериться тут */}
+          {modal}
           <Footer />
         </TanStackProvider>
       </body>

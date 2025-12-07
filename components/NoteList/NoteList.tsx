@@ -15,10 +15,7 @@ export interface NoteListProps {
   detailsBasePath?: string; //
 }
 
-export default function NoteList({
-  notes,
-  detailsBasePath = "/notes",
-}: NoteListProps) {
+export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -43,9 +40,10 @@ export default function NoteList({
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
             <div className={css.actions}>
-              <Link href={`${detailsBasePath}/${note.id}`} className={css.link}>
+              <Link href={`/notes/${note.id}`} className={css.link}>
                 View details
               </Link>
+
               <button
                 type="button"
                 className={css.button}

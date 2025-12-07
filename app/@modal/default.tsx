@@ -1,4 +1,4 @@
-// app/notes/@modal/default.tsx
-export default function ModalDefault() {
+// app/@modal/default.tsx
+export default function RootModalDefault() {
   return null;
 }
