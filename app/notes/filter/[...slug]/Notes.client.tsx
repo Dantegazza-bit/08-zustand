@@ -1,75 +1,84 @@
 // app/notes/filter/[...slug]/Notes.client.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchNotes, type FetchNotesResponse } from "@/lib/api";
 import type { Note } from "@/types/note";
 
-import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
+import NoteList from "@/components/NoteList/NoteList";
+
+const PER_PAGE = 10;
 
 interface NotesClientProps {
   tag: string; // обов'язковий проп
 }
 
-const PER_PAGE = 10;
-
 export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const normalizedTag = tag === "all" ? undefined : tag;
 
+  // --- debounce пошуку ---
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1); // при новому пошуку — на першу сторінку
+    }, 300);
+
+    return () => window.clearTimeout(id);
+  }, [search]);
+
+  // --- React Query ---
   const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
-    queryKey: ["notes", { page, search, tag: normalizedTag }],
+    queryKey: ["notes", { page, search: debouncedSearch, tag: normalizedTag }],
     queryFn: () =>
       fetchNotes({
         page,
         perPage: PER_PAGE,
-        search,
+        search: debouncedSearch,
         tag: normalizedTag,
       }),
-    // без keepPreviousData, бо в нашій версії @tanstack/react-query воно не типізоване
+    refetchOnMount: false, // щоб зайвий раз не перезавантажувати
   });
 
   const notes: Note[] = data?.notes ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const totalPages: number = data?.totalPages ?? 1;
 
+  // --- обробники ---
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setPage(1); // при новому пошуку повертаємось на першу сторінку
   };
 
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
   };
 
-  const handleCreateClick = () => {
-    setIsCreateOpen(true);
-  };
+  const handleCreateOpen = () => setIsCreateOpen(true);
+  const handleCreateClose = () => setIsCreateOpen(false);
 
-  const handleCreateClose = () => {
-    setIsCreateOpen(false);
-  };
-
+  // --- стани завантаження/помилки ---
   if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Failed to load notes</p>;
+  if (isError) return <p>Failed to load notes.</p>;
 
+  // --- рендер ---
   return (
     <>
-      {/* Верхня панель: пошук + кнопка створення */}
-      <div className="notes-toolbar">
-        <SearchBox value={search} onChange={handleSearchChange} />
-        <button type="button" onClick={handleCreateClick}>
-          Create note +
-        </button>
-      </div>
+      {/* Пошук */}
+      <SearchBox value={search} onChange={handleSearchChange} />
+
+      {/* Кнопка створення нотатки */}
+      <button type="button" onClick={handleCreateOpen}>
+        Create note +
+      </button>
 
       {/* Список нотаток */}
       <NoteList notes={notes} detailsBasePath={`/notes/filter/${tag}`} />
@@ -78,13 +87,12 @@ export default function NotesClient({ tag }: NotesClientProps) {
       <Pagination
         page={page}
         totalPages={totalPages}
-        onPageChange={handlePageChange}
+        onChange={handlePageChange}
       />
 
       {/* Модалка створення */}
       {isCreateOpen && (
         <Modal onClose={handleCreateClose}>
-          {/* У стартовому коді GoIT зазвичай у NoteForm є проп onClose */}
           <NoteForm onClose={handleCreateClose} />
         </Modal>
       )}
