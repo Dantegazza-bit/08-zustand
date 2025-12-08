@@ -12,7 +12,7 @@ import css from "./NoteList.module.css";
 
 export interface NoteListProps {
   notes: Note[];
-  detailsBasePath?: string; //
+  detailsBasePath?: string; // залишаємо, але не обов'язково використовувати
 }
 
 export default function NoteList({ notes }: NoteListProps) {
@@ -32,14 +32,15 @@ export default function NoteList({ notes }: NoteListProps) {
   return (
     <ul className={css.list}>
       {notes.map((note) => (
-        <li key={note.id} className={css.item}>
-          <div className={css.header}>
-            <h2 className={css.title}>{note.title}</h2>
-          </div>
+        <li key={note.id} className={css.listItem}>
+          <h2 className={css.title}>{note.title}</h2>
+
           <p className={css.content}>{note.content}</p>
+
           <div className={css.footer}>
             <span className={css.tag}>{note.tag}</span>
-            <div className={css.actions}>
+
+            <div>
               <Link href={`/notes/${note.id}`} className={css.link}>
                 View details
               </Link>

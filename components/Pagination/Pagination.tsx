@@ -16,39 +16,19 @@ export default function Pagination({
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const handlePrev = () => {
-    if (page > 1) {
-      onChange(page - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (page < totalPages) {
-      onChange(page + 1);
-    }
-  };
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
-    <div className={css.pagination}>
-      <button
-        type="button"
-        className={css.button}
-        onClick={handlePrev}
-        disabled={page === 1}
-      >
-        {"<"}
-      </button>
-
-      <span className={css.page}>{page}</span>
-
-      <button
-        type="button"
-        className={css.button}
-        onClick={handleNext}
-        disabled={page === totalPages}
-      >
-        {">"}
-      </button>
-    </div>
+    <ul className={css.pagination}>
+      {pages.map((p) => (
+        <li
+          key={p}
+          className={p === page ? css.active : undefined}
+          onClick={() => onChange(p)}
+        >
+          <a>{p}</a>
+        </li>
+      ))}
+    </ul>
   );
 }

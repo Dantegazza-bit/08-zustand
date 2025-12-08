@@ -1,23 +1,40 @@
+/* фон і відступи сайдбара */
+.sidebar {
+  background-color: #333;
+  padding: 16px;
+}
+
+/* список */
 .menuList {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
+/* елементи списку */
 .menuItem {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
+/* посилання */
 .menuLink {
   text-decoration: none;
-  color: white;
+  color: #fff;
   font-size: 16px;
   display: block;
   padding: 8px 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* ховер */
 .menuLink:hover {
   background-color: #444;
   color: #ddd;
+}
+
+/* активний пункт (поточний тег) */
+.menuLinkActive {
+  background-color: #555;
+  color: #fff;
+  font-weight: 600;
 }

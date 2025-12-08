@@ -1,25 +1,24 @@
 // app/notes/[id]/NoteDetails.client.tsx
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchNoteById } from "@/lib/api";
 import type { Note } from "@/types/note";
-import css from "../../NoteDetails.module.css";
 
-// ✅ ДОДАЛИ інтерфейс пропів
+import css from "./NoteDetails.module.css";
+
 interface NoteDetailsProps {
-  id?: string; // може бути, а може й ні
+  id?: string;
 }
 
-// Назва функції не критична, головне — default export з пропами
 export default function NoteDetailsClient({ id }: NoteDetailsProps) {
-  // Якщо id прийшов пропом — беремо його,
-  // якщо ні — беремо з URL через useParams()
   const params = useParams();
-  const routeRawId = params?.id;
+  const router = useRouter();
 
+  // id з пропів або з URL
+  const routeRawId = params?.id;
   const rawId = id ?? routeRawId;
   const finalId = Array.isArray(rawId) ? rawId[0] : rawId;
 
@@ -34,23 +33,61 @@ export default function NoteDetailsClient({ id }: NoteDetailsProps) {
     refetchOnMount: false,
   });
 
+  if (!finalId) {
+    return <p>Note id is missing</p>;
+  }
+
   if (isLoading) {
-    return <p>Loading, please wait...</p>;
+    return (
+      <main className={css.main}>
+        <div className={css.container}>
+          <p className={css.content}>Loading, please wait...</p>
+        </div>
+      </main>
+    );
   }
 
   if (isError || !note) {
-    return <p>Something went wrong.</p>;
+    return (
+      <main className={css.main}>
+        <div className={css.container}>
+          <p className={css.content}>Something went wrong.</p>
+          <button
+            type="button"
+            className={css.backBtn}
+            onClick={() => router.back()}
+          >
+            Back
+          </button>
+        </div>
+      </main>
+    );
   }
 
   return (
-    <div className={css.container}>
-      <div className={css.item}>
-        <div className={css.header}>
-          <h2>{note.title}</h2>
+    <main className={css.main}>
+      <div className={css.container}>
+        <button
+          type="button"
+          className={css.backBtn}
+          onClick={() => router.back()}
+        >
+          Back
+        </button>
+
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+            {note.tag && <span className={css.tag}>{note.tag}</span>}
+          </div>
+
+          <p className={css.content}>{note.content}</p>
+
+          <p className={css.date}>
+            {new Date(note.createdAt).toLocaleString()}
+          </p>
         </div>
-        <p className={css.content}>{note.content}</p>
-        <p className={css.date}>{note.createdAt}</p>
       </div>
-    </div>
+    </main>
   );
 }

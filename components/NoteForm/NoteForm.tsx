@@ -20,7 +20,7 @@ const validationSchema = Yup.object({
     .min(3, "Title must be at least 3 characters")
     .max(50, "Title must be at most 50 characters")
     .required("Title is required"),
-  content: Yup.string().max(500, "Content must be at most 500 characters"), // ✅ без .required
+  content: Yup.string().max(500, "Content must be at most 500 characters"),
   tag: Yup.mixed<NoteTag>()
     .oneOf(
       ["Todo", "Work", "Personal", "Shopping", "Meeting"],
@@ -61,13 +61,15 @@ export default function NoteForm({ onClose }: NoteFormProps) {
     >
       {({ isSubmitting }) => (
         <Form className={css.form}>
-          <label className={css.label}>
+          {/* Title */}
+          <label className={css.formGroup}>
             <span>Title</span>
             <Field name="title" className={css.input} />
             <ErrorMessage name="title" component="span" className={css.error} />
           </label>
 
-          <label className={css.label}>
+          {/* Content */}
+          <label className={css.formGroup}>
             <span>Content</span>
             <Field
               as="textarea"
@@ -81,21 +83,24 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             />
           </label>
 
-          <label className={css.label}>
+          {/* Tag */}
+          <label className={css.formGroup}>
             <span>Tag</span>
             <Field as="select" name="tag" className={css.select}>
               <option value="Todo">Todo</option>
               <option value="Work">Work</option>
               <option value="Personal">Personal</option>
               <option value="Shopping">Shopping</option>
+              <option value="Meeting">Meeting</option>
             </Field>
             <ErrorMessage name="tag" component="span" className={css.error} />
           </label>
 
-          <div className={css.buttons}>
+          {/* Buttons */}
+          <div className={css.actions}>
             <button
               type="button"
-              className={css.buttonSecondary}
+              className={css.cancelButton}
               onClick={onClose}
               disabled={createMutation.isPending}
             >
@@ -103,7 +108,7 @@ export default function NoteForm({ onClose }: NoteFormProps) {
             </button>
             <button
               type="submit"
-              className={css.buttonPrimary}
+              className={css.submitButton}
               disabled={isSubmitting || createMutation.isPending}
             >
               Create note

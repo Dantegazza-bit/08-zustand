@@ -1,3 +1,4 @@
+// components/SidebarNotes/SidebarNotes.tsx
 "use client";
 
 import Link from "next/link";
@@ -17,23 +18,22 @@ const FILTERS = [
 export default function SidebarNotes() {
   const pathname = usePathname();
 
-  // ми на сторінці /notes/filter/...
-  const isFilterPage = pathname.startsWith("/notes/filter");
-
   return (
     <aside className={css.sidebar}>
-      <h2 className={css.title}>Sidebar with filters</h2>
-
-      <ul className={css.list}>
+      <ul className={css.menuList}>
         {FILTERS.map(({ label, tag }) => {
           const href = `/notes/filter/${tag}`;
-          const isActive = isFilterPage && pathname === href;
+          const isActive = pathname === href;
 
           return (
-            <li key={tag}>
+            <li key={tag} className={css.menuItem}>
               <Link
                 href={href}
-                className={isActive ? css.linkActive : css.link}
+                className={
+                  isActive
+                    ? `${css.menuLink} ${css.menuLinkActive}`
+                    : css.menuLink
+                }
               >
                 {label}
               </Link>
