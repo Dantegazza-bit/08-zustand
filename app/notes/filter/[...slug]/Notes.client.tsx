@@ -13,31 +13,30 @@ import Modal from "@/components/Modal/Modal";
 import NoteForm from "@/components/NoteForm/NoteForm";
 import NoteList from "@/components/NoteList/NoteList";
 
-const PER_PAGE = 10;
-
 interface NotesClientProps {
-  tag: string; // обов'язковий проп
+  tag: string; // 'all' | 'work' | 'personal' | ...
 }
+
+const PER_PAGE = 10;
 
 export default function NotesClient({ tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const normalizedTag = tag === "all" ? undefined : tag;
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // --- debounce пошуку ---
   useEffect(() => {
-    const id = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
-      setPage(1); // при новому пошуку — на першу сторінку
+    const id = setTimeout(() => {
+      setDebouncedSearch(search);
     }, 300);
 
-    return () => window.clearTimeout(id);
+    return () => clearTimeout(id);
   }, [search]);
 
-  // --- React Query ---
+  const normalizedTag = tag === "all" ? undefined : tag;
+
   const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
     queryKey: ["notes", { page, search: debouncedSearch, tag: normalizedTag }],
     queryFn: () =>
@@ -47,15 +46,17 @@ export default function NotesClient({ tag }: NotesClientProps) {
         search: debouncedSearch,
         tag: normalizedTag,
       }),
-    refetchOnMount: false, // щоб зайвий раз не перезавантажувати
+    keepPreviousData: true,
   });
 
   const notes: Note[] = data?.notes ?? [];
-  const totalPages: number = data?.totalPages ?? 1;
+  const totalPages = data?.totalPages ?? 1;
 
   // --- обробники ---
+
   const handleSearchChange = (value: string) => {
     setSearch(value);
+    setPage(1);
   };
 
   const handlePageChange = (nextPage: number) => {
@@ -65,23 +66,20 @@ export default function NotesClient({ tag }: NotesClientProps) {
   const handleCreateOpen = () => setIsCreateOpen(true);
   const handleCreateClose = () => setIsCreateOpen(false);
 
-  // --- стани завантаження/помилки ---
   if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Failed to load notes.</p>;
+  if (isError) return <p>Failed to load notes</p>;
 
-  // --- рендер ---
   return (
     <>
       {/* Пошук */}
       <SearchBox value={search} onChange={handleSearchChange} />
 
-      {/* Кнопка створення нотатки */}
-      <button type="button" onClick={handleCreateOpen}>
-        Create note +
-      </button>
-
       {/* Список нотаток */}
-      <NoteList notes={notes} detailsBasePath={`/notes/filter/${tag}`} />
+      <NoteList
+        notes={notes}
+        detailsBasePath={`/notes/filter/${tag}`}
+        onCreateClick={handleCreateOpen}
+      />
 
       {/* Пагінація */}
       <Pagination

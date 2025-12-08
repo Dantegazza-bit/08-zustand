@@ -6,9 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { fetchNoteById } from "@/lib/api";
 import type { Note } from "@/types/note";
-import Modal from "@/components/Modal/Modal";
-import css from "@/app/NoteDetails.module.css";
-// якщо інший шлях до стилів — підкоригуй
+import css from "./NotePreview.module.css";
 
 interface NotePreviewProps {
   id: string;
@@ -31,21 +29,26 @@ export default function NotePreview({ id }: NotePreviewProps) {
     router.back();
   };
 
+  if (isLoading) {
+    return <p className={css.state}>Loading...</p>;
+  }
+
+  if (isError || !note) {
+    return <p className={css.state}>Failed to load note.</p>;
+  }
+
   return (
-    <Modal onClose={handleClose}>
-      {isLoading && <p>Loading...</p>}
-      {isError && <p>Failed to load note</p>}
-      {note && (
-        <div className={css.container}>
-          <div className={css.item}>
-            <div className={css.header}>
-              <h2>{note.title}</h2>
-            </div>
-            <p className={css.content}>{note.content}</p>
-            <p className={css.date}>{note.createdAt}</p>
-          </div>
-        </div>
-      )}
-    </Modal>
+    <div className={css.wrapper}>
+      <div className={css.header}>
+        <h2 className={css.title}>{note.title}</h2>
+
+        <button type="button" className={css.closeButton} onClick={handleClose}>
+          Close
+        </button>
+      </div>
+
+      <p className={css.content}>{note.content}</p>
+      <p className={css.date}>{note.createdAt}</p>
+    </div>
   );
 }
