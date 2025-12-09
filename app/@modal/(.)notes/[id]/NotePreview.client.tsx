@@ -1,22 +1,20 @@
 // app/@modal/(.)notes/[id]/NotePreview.client.tsx
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
-import Modal from "@/components/Modal/Modal";
 import { fetchNoteById } from "@/lib/api";
 import type { Note } from "@/types/note";
-import NotePreview from "@/components/NotePreview/NotePreview";
+import Modal from "@/components/Modal/Modal";
+import css from "./NotePreview.module.css";
 
-export default function NotePreviewClient() {
+interface NotePreviewProps {
+  id: string;
+}
+
+export default function NotePreview({ id }: NotePreviewProps) {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const id = params.id;
-
-  const handleClose = () => {
-    router.back();
-  };
 
   const {
     data: note,
@@ -25,19 +23,44 @@ export default function NotePreviewClient() {
   } = useQuery<Note, Error>({
     queryKey: ["note", id],
     queryFn: () => fetchNoteById(id),
-    enabled: !!id, // не робимо запит, поки id немає
     refetchOnMount: false,
   });
 
+  const handleClose = () => {
+    router.back();
+  };
+
+  let body;
+
+  if (isLoading) {
+    body = <p className={css.state}>Loading...</p>;
+  } else if (isError || !note) {
+    body = <p className={css.state}>Failed to load note.</p>;
+  } else {
+    body = (
+      <>
+        <div className={css.header}>
+          <h2 className={css.title}>{note.title}</h2>
+
+          <button
+            type="button"
+            className={css.closeButton}
+            onClick={handleClose}
+            aria-label="Close modal"
+          >
+            ×
+          </button>
+        </div>
+
+        <p className={css.content}>{note.content}</p>
+        <p className={css.date}>{note.createdAt}</p>
+      </>
+    );
+  }
+
   return (
     <Modal onClose={handleClose}>
-      {isLoading && <p>Loading...</p>}
-
-      {(isError || !note) && !isLoading && <p>Failed to load note.</p>}
-
-      {!isLoading && !isError && note && (
-        <NotePreview note={note} onClose={handleClose} />
-      )}
+      <div className={css.wrapper}>{body}</div>
     </Modal>
   );
 }

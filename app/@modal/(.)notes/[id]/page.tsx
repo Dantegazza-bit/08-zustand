@@ -1,8 +1,38 @@
 // app/@modal/(.)notes/[id]/page.tsx
-import NotePreviewClient from "./NotePreview.client";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
 
-export default function ModalNotePage() {
-  // Просто рендеримо клієнтський компонент.
-  // Він сам дістає id з URL через useParams.
-  return <NotePreviewClient />;
+import { fetchNoteById } from "@/lib/api";
+import NotePreview from "./NotePreview.client";
+
+interface ModalNotePageProps {
+  // 🔥 ВАЖЛИВО: params — Саме Promise<{ id: string }>
+  params: Promise<{ id: string }>;
+}
+
+async function getDehydratedState(id: string) {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
+  });
+
+  return dehydrate(queryClient);
+}
+
+export default async function ModalNotePage({ params }: ModalNotePageProps) {
+  // ✅ розпаковуємо Promise
+  const { id } = await params;
+
+  const state = await getDehydratedState(id);
+
+  return (
+    <HydrationBoundary state={state}>
+      <NotePreview id={id} />
+    </HydrationBoundary>
+  );
 }
