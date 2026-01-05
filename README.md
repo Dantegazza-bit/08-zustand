@@ -5,7 +5,7 @@ A Next.js (App Router) notes application focused on SEO metadata setup and a dra
 The project demonstrates SSR/CSR rendering, REST API integration, and persistent draft state stored in localStorage.
 
 ## 🚀 Demo
-YOUR_VERCEL_URL_HERE
+08-zustand-black-three.vercel.app
 
 ## 🛠 Tech Stack
 - Next.js (App Router)
